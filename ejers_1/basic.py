@@ -1,25 +1,4 @@
-import string
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer
-
-
-def clean_tonkenize(targ_string):
-
-    pnct_translt_table = str.maketrans('', '', string.punctuation)
-    eng_stop_words = set(stopwords.words('english'))
-    lmtzr = WordNetLemmatizer()
-
-    # tokenize
-    for w in word_tokenize(targ_string):
-
-        # lemmatize, remove punctuation and stopwords
-        if w.translate(pnct_translt_table) == '' or w in eng_stop_words:
-            pass
-        else:
-            yield lmtzr.lemmatize(
-                w.translate(pnct_translt_table)
-            )
+from ejers_1.utils import clean_tonkenize
 
 
 class BasicIndex:
@@ -33,7 +12,6 @@ class BasicIndex:
         """
         for file_path in path_list:
             with open(file_path) as file:
-                # Obtener nombre del archivo desde el path
                 self.process_file(file, file_path)
 
     def process_file(self, file, file_path):
@@ -46,8 +24,9 @@ class BasicIndex:
 
         file_indexed_values = self.index.get(file_path, set())
 
-        for line in file:
-            for token in clean_tonkenize(line):
+        # for line in file:
+        #     for token in clean_tonkenize(line):
+        for token in clean_tonkenize(file.read()):
                 file_indexed_values.add(token)
 
         self.index[file_path] = file_indexed_values
@@ -75,7 +54,7 @@ class BasicQuery:
 
 
 ''' Prueba de concepto'''
-
+print("Basic: prueba de concepto")
 import datetime
 t_start = datetime.datetime.now()
 
@@ -83,8 +62,12 @@ t_basic_index = BasicIndex(['.\corpus\pg135.txt',
                             '.\corpus\pg76.txt',
                             '.\corpus\pg5200.txt'])
 t_query = BasicQuery(t_basic_index)
+
+t_index = datetime.datetime.now()
+print("index build time: %s" % str(t_index-t_start))
 print(t_query.query("The house was in England"))
 t_finish = datetime.datetime.now()
-print("Query total time: %s" % str(t_finish-t_start))
+print("query time: %s" % str(t_finish-t_index))
+print("Total time: %s" % str(t_finish-t_start))
 
 
